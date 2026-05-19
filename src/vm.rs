@@ -43,6 +43,7 @@ impl VirtualMachine {
                         }
                         0b01 => {
                             self.buf &= !0b11;
+                            self.count = self.count - 2;
                         }
                         0b10 => {
                             self.buf = 0;
