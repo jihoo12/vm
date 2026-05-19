@@ -1,4 +1,4 @@
-reg 2bit | reg prefix 1bit | reg/imm 2bit | 3bit operand
+| 3bit operand | reg 2bit | reg prefix 1bit | reg/imm 2bit |
 register
 00 a 
 01 b
@@ -20,3 +20,19 @@ operand
 111 exit
 
 000 00 0 00
+
+Extended instruction set for stdout
+
+| 3bit 000 fixed | 1bit prefix | 2bit imm | 2bit operand |
+prefix
+0 nop
+1 use Extended instruction
+
+operand
+00 push
+01 pop
+10 flush
+11 print
+
+000 1 01 00
+000 1 00 11
