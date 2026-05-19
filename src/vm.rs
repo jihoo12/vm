@@ -12,7 +12,32 @@ impl VirtualMachine {
             count: 0,
         }
     }
-    pub fn execute(&mut self, code: u8) {
+    pub fn eval(&mut self, codes: &[u8], len: usize) {
+        let mut i = 0;
+        loop {
+            if i == len {
+                break;
+            }
+            let op = (codes[i] >> 5) & 0b111;
+            if op == 0b111 {
+                let prefix = (codes[i] >> 4) & 0b1;
+                let dst_idx = ((codes[i] >> 2) & 0b11) as usize;
+                let src_idx = (codes[i] & 0b11) as usize;
+                if prefix == 0 {
+                    break; // exit
+                } else {
+                    if self.regs[dst_idx] == self.regs[src_idx] {
+                        i = self.buf as usize;
+                        continue;
+                    }
+                }
+            } else {
+                self.execute(codes[i]);
+            }
+            i = i + 1;
+        }
+    }
+    fn execute(&mut self, code: u8) {
         // [op 3bit] [dst 2bit] [prefix 1bit] [src 2bit]
         let op = (code >> 5) & 0b111; // 상위 3비트
         let dst = ((code >> 3) & 0b11) as usize; // 그 다음 2비트
@@ -34,7 +59,7 @@ impl VirtualMachine {
                 if extened_prefix {
                     match extended_op {
                         0b00 => {
-                            if self.count != 16 {
+                            if self.count < 16 {
                                 self.buf |= (extened_imm as u32) << self.count;
                                 self.count = self.count + 2;
                             } else {
@@ -42,11 +67,15 @@ impl VirtualMachine {
                             }
                         }
                         0b01 => {
-                            self.buf &= !0b11;
-                            self.count = self.count - 2;
+                            if self.count >= 2 {
+                                self.count -= 2;
+                                let mask = !(0b11u32 << self.count);
+                                self.buf &= mask;
+                            }
                         }
                         0b10 => {
                             self.buf = 0;
+                            self.count = 0;
                         }
                         0b11 => {
                             if let Some(c) = char::from_u32(self.buf) {
@@ -57,6 +86,8 @@ impl VirtualMachine {
                         }
                         _ => {}
                     }
+                } else {
+                    /*NOP*/
                 }
             }
             0b001 => {

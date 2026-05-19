@@ -17,7 +17,7 @@ operand
 100 div
 101 mul
 110 nand
-111 exit
+111 cmp jump
 
 000 00 0 00
 
@@ -34,3 +34,13 @@ operand
 01 pop
 10 flush
 11 print
+
+cmp jump
+
+| 3bit 111 fixed | 1bit prefix | 2bit reg | 2bit reg |
+
+prefix
+0 exit 
+1 use cmp jump
+
+if src == dst then update pc to buf
