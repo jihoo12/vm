@@ -13,11 +13,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| s.parse::<u8>()) // 문자열 "20"을 숫자 20u8로 변환합니다.
         .collect::<Result<Vec<u8>, _>>()?; // 에러가 없다면 Vec<u8>로 수집합니다.
 
-    // 잘 바뀌었는지 확인용 출력
-    for i in &codes {
-        println!("{}", i);
-    }
-
     // 3. 이제 진짜 숫자 배열이 되었으므로 VM에 안전하게 넘겨줍니다!
     let len = codes.len();
     vm.eval(&codes, len);
